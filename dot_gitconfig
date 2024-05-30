@@ -1,0 +1,7 @@
+[user]
+	name = slociv
+	email = 1211367769@qq.com
+[http]
+	proxy = socks5://127.0.0.1:2080
+[https]
+	proxy = socks5://127.0.0.1:2080
