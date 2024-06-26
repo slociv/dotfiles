@@ -18,6 +18,9 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 -- when client with a matching name is opened:
 require("awful.hotkeys_popup.keys")
 
+-- Battery widget
+local battery_widget = require("awful.widget.watch")
+
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
@@ -105,6 +108,29 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 -- Keyboard map indicator and switcher
 mykeyboardlayout = awful.widget.keyboardlayout()
 
+
+-- Create a battery widget
+-- Create a battery widget
+local battery = battery_widget(
+    "acpi",
+    180,  -- 每10秒更新一次
+    function(widget, stdout)
+        local status = stdout:match("Battery 0: (%w+)")
+        local percentage = stdout:match("(%d+)%%")
+        
+        local battery_icon = "🔋"
+        if tonumber(percentage) <= 20 then
+            battery_icon = "🪫"
+        end
+        
+        local text = battery_icon .. percentage .. "%"
+        if status == "Charging" then
+            text = "🔋⚡ " .. percentage .. "%"
+        end
+        
+        widget:set_text(text)
+    end
+)
 -- {{{ Wibar
 -- Create a textclock widget
 mytextclock = wibox.widget.textclock()
@@ -212,6 +238,7 @@ awful.screen.connect_for_each_screen(function(s)
             layout = wibox.layout.fixed.horizontal,
             mykeyboardlayout,
             wibox.widget.systray(),
+            battery,
             mytextclock,
             s.mylayoutbox,
         },
@@ -336,7 +363,7 @@ clientkeys = gears.table.join(
             c:raise()
         end,
         {description = "toggle fullscreen", group = "client"}),
-    awful.key({ modkey, "Shift"   }, "c",      function (c) c:kill()                         end,
+    awful.key({ modkey,      }, "q",      function (c) c:kill()                         end,
               {description = "close", group = "client"}),
     awful.key({ modkey, "Control" }, "space",  awful.client.floating.toggle                     ,
               {description = "toggle floating", group = "client"}),
@@ -573,3 +600,4 @@ end
 run_once({ "fcitx5" })
 run_once({ "nekoray" })
 run_once({ "nutstore" })
+run_once({ "acpi" })
